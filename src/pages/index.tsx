@@ -8,18 +8,13 @@ import {
   asyncIncrement,
 } from "../store/reducers/counter";
 import {
-  addLottery,
   BigHitStatus,
+  lotteryAdded,
   selectCurrent,
   selectHistories,
   selectLotteries,
   SlotStatus,
 } from "../store/reducers/slot";
-
-const executeLottery = () => {
-  const reel = () => Math.floor(Math.random() * 9 + 1);
-  return `${reel()}${reel()}${reel()}`;
-};
 
 const IndexPage = () => {
   const dispatch = useDispatch();
@@ -43,21 +38,11 @@ const IndexPage = () => {
 
   const onClickInc = () => {
     dispatch(increment());
-    dispatch(
-      addLottery({
-        lottery: executeLottery(),
-        count,
-      })
-    );
+    dispatch(lotteryAdded(count));
   };
   const onClickAsyncInc = async () => {
     await dispatch(asyncIncrement());
-    dispatch(
-      addLottery({
-        lottery: executeLottery(),
-        count,
-      })
-    );
+    dispatch(lotteryAdded(count));
   };
   const onClickDec = () => count > 0 && dispatch(decrement());
   const onClickReset = () => dispatch(reset());

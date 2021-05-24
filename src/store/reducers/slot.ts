@@ -1,10 +1,11 @@
 import {
+  createAsyncThunk,
   createEntityAdapter,
   createSelector,
   createSlice,
-  PayloadAction,
 } from "@reduxjs/toolkit";
 import { RootState } from "..";
+import { Lottery } from "../../pages/api/lottery";
 
 export const SlotStatus = {
   None: "none",
@@ -28,17 +29,25 @@ export interface SlotState {
 
 const adapter = createEntityAdapter<SlotState>();
 
+export const lotteryAdded = createAsyncThunk(
+  "slot/lotteryAdded",
+  async (count: number) => {
+    const { lottery }: Lottery = await fetch("/api/lottery").then((res) =>
+      res.json()
+    );
+    return {
+      lottery,
+      count,
+    };
+  }
+);
+
 export const slice = createSlice({
   name: "slot",
   initialState: adapter.getInitialState(),
-  reducers: {
-    addLottery: (
-      state,
-      action: PayloadAction<{
-        lottery: string;
-        count: number;
-      }>
-    ) => {
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(lotteryAdded.fulfilled, (state, action) => {
       const { lottery, count } = action.payload;
       const id = state.ids.length
         ? (state.ids[state.ids.length - 1] as number) + 1
@@ -62,7 +71,7 @@ export const slice = createSlice({
         bigHitStatus,
         currentCount: count + 1,
       });
-    },
+    });
   },
 });
 
@@ -82,5 +91,3 @@ export const selectHistories = createSelector(
 export const { selectEntities: selectLotteries } = adapter.getSelectors(
   (state: RootState) => state.slot
 );
-
-export const { addLottery } = slice.actions;
